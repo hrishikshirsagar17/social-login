@@ -63,7 +63,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .and().csrf().disable().formLogin().disable().httpBasic().disable().exceptionHandling()
         .authenticationEntryPoint(new RestAuthenticationEntryPoint()).and().authorizeRequests()
         .antMatchers("/", "/error", "/api/all", "/api/auth/**", "/oauth2/**",
-            "/zonions/restaurant/**")
+            "/zonions/restaurant/**", "/v2/api-docs", "/configuration/**", "/swagger*/**",
+            "/webjars/**", "/swagger-ui.html/")
         .permitAll().anyRequest().authenticated().and().oauth2Login().authorizationEndpoint()
         .authorizationRequestRepository(cookieAuthorizationRequestRepository()).and()
         .redirectionEndpoint().and().userInfoEndpoint().oidcUserService(customOidcUserService)
