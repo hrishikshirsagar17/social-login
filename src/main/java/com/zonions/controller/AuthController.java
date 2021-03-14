@@ -1,7 +1,9 @@
 package com.zonions.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,32 +31,52 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-	@Autowired
-	AuthenticationManager authenticationManager;
+  @Autowired
+  AuthenticationManager authenticationManager;
 
-	@Autowired
-	UserService userService;
+  @Autowired
+  UserService userService;
 
-	@Autowired
-	TokenProvider tokenProvider;
+  @Autowired
+  TokenProvider tokenProvider;
 
-	@PostMapping("/signin")
-	public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-		Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
-		SecurityContextHolder.getContext().setAuthentication(authentication);
-		String jwt = tokenProvider.createToken(authentication);
-		LocalUser localUser = (LocalUser) authentication.getPrincipal();
-		return ResponseEntity.ok(new JwtAuthenticationResponse(jwt, GeneralUtils.buildUserInfo(localUser)));
-	}
+  @PostMapping("/signin")
+  public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest,
+      HttpServletRequest request) {
+    Authentication authentication =
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+            loginRequest.getEmail(), loginRequest.getPassword()));
+    SecurityContextHolder.getContext().setAuthentication(authentication);
+    String jwt = tokenProvider.createToken(authentication);
+    LocalUser localUser = (LocalUser) authentication.getPrincipal();
+    @SuppressWarnings("unchecked")
+    List<LocalUser> sessionUser =
+        (List<LocalUser>) request.getSession().getAttribute("SESSION_USER");
+    if (sessionUser == null) {
+      sessionUser = new ArrayList<>();
 
-	@PostMapping("/signup")
-	public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
-		try {
-			userService.registerNewUser(signUpRequest);
-		} catch (UserAlreadyExistAuthenticationException e) {
-			log.error("Exception Ocurred", e);
-			return new ResponseEntity<>(new ApiResponse(false, "Email Address already in use!"), HttpStatus.BAD_REQUEST);
-		}
-		return ResponseEntity.ok().body(new ApiResponse(true, "User registered successfully"));
-	}
+      request.getSession().setAttribute("SESSION_USER", localUser);
+      request.getSession().setMaxInactiveInterval(10 * 60);
+
+    }
+
+    sessionUser.add(localUser);
+    request.getSession().setAttribute("SESSION_USER", sessionUser);
+
+
+    return ResponseEntity
+        .ok(new JwtAuthenticationResponse(jwt, GeneralUtils.buildUserInfo(localUser)));
+  }
+
+  @PostMapping("/signup")
+  public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
+    try {
+      userService.registerNewUser(signUpRequest);
+    } catch (UserAlreadyExistAuthenticationException e) {
+      log.error("Exception Ocurred", e);
+      return new ResponseEntity<>(new ApiResponse(false, "Email Address already in use!"),
+          HttpStatus.BAD_REQUEST);
+    }
+    return ResponseEntity.ok().body(new ApiResponse(true, "User registered successfully"));
+  }
 }

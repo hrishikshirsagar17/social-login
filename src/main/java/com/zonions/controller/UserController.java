@@ -1,6 +1,8 @@
 package com.zonions.controller;
 
+import java.util.ArrayList;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +29,20 @@ public class UserController {
 
   @GetMapping("/user/me")
   @PreAuthorize("hasRole('USER')")
-  public ResponseEntity<?> getCurrentUser(@CurrentUser LocalUser user) {
+  public ResponseEntity<?> getCurrentUser(@CurrentUser LocalUser user, HttpServletRequest request) {
+    @SuppressWarnings("unchecked")
+    List<LocalUser> sessionUser =
+        (List<LocalUser>) request.getSession().getAttribute("SESSION_USER");
+    if (sessionUser == null) {
+      sessionUser = new ArrayList<>();
+
+      request.getSession().setAttribute("SESSION_USER", user);
+      request.getSession().setMaxInactiveInterval(10 * 60);
+
+    }
+
+    sessionUser.add(user);
+    request.getSession().setAttribute("SESSION_USER", sessionUser);
     return ResponseEntity.ok(GeneralUtils.buildUserInfo(user));
   }
 
@@ -42,7 +57,7 @@ public class UserController {
   }
 
   @DeleteMapping("/users/{id}")
-  public ResponseEntity<HttpStatus> deleteByUsername(@PathVariable long id) {
+  public ResponseEntity<HttpStatus> deleteById(@PathVariable long id) {
 
     return service.deleteById(id);
 

@@ -51,3 +51,12 @@ management:
 logging.file.path : /
 logging.file.name : Logs/log.txt
 logging.level.com.zonions: debug
+
+#Session Management
+spring.session:
+    store-type: jdbc
+    timeout.seconds: 900
+    jdbc:
+      initialize-schema: always
+      table-name: SPRING_SESSION
+

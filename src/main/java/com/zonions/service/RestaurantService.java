@@ -23,12 +23,13 @@ public class RestaurantService {
   String updatedTime = time.toString();
 
   // Service To add restaurant object
-  public ResponseEntity<Restaurant> createRestaurant(@RequestBody Restaurant rm) {
+  public ResponseEntity<Restaurant> createRestaurant(@RequestBody Restaurant restaurant) {
     try {
 
       Restaurant _restaurant =
-          restaurantRepository.save(new Restaurant(rm.getRestaurantName(), rm.getAddress(),
-              rm.getPhone_no(), rm.getOpen_time(), rm.getClose_time(), status, updatedTime));
+          restaurantRepository.save(new Restaurant(restaurant.getRestaurantName(),
+              restaurant.getAddress(), restaurant.getPhoneNo(), restaurant.getOpenTime(),
+              restaurant.getCloseTime(), status, updatedTime));
       return new ResponseEntity<>(_restaurant, HttpStatus.CREATED);
     } catch (Exception e) {
       return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -38,15 +39,15 @@ public class RestaurantService {
   // Service To add Image
   public String uploadImage(@RequestParam("file") MultipartFile file, @PathVariable int id) {
 
-    Optional<Restaurant> restData = restaurantRepository.findById(id);
+    Optional<Restaurant> data = restaurantRepository.findById(id);
     try {
-      if (restData.isPresent()) {
-        Restaurant restModel = restData.get();
-        restModel.setName(file.getOriginalFilename());
-        restModel.setMimetype(file.getContentType());
-        restModel.setPic(file.getBytes());
+      if (data.isPresent()) {
+        Restaurant restaurant = data.get();
+        restaurant.setName(file.getOriginalFilename());
+        restaurant.setMimetype(file.getContentType());
+        restaurant.setPic(file.getBytes());
 
-        restaurantRepository.save(restModel);
+        restaurantRepository.save(restaurant);
 
       }
       return "File uploaded successfully! -> filename = " + file.getOriginalFilename();
@@ -87,44 +88,44 @@ public class RestaurantService {
   }
 
   public ResponseEntity<Restaurant> updateRestaurant(@PathVariable int id,
-      @RequestBody Restaurant resmodel) {
-    Optional<Restaurant> restData = restaurantRepository.findById(id);
-    if (restData.isPresent()) {
-      Restaurant rs = restData.get();
-      rs.setRestaurantName(resmodel.getRestaurantName());
-      rs.setAddress(resmodel.getAddress());
-      rs.setPhone_no(resmodel.getPhone_no());
-      rs.setOpen_time(resmodel.getOpen_time());
-      rs.setClose_time(resmodel.getClose_time());
-      rs.setStatus(resmodel.getStatus());
-      rs.setUpdatedTime(updatedTime);
-      return new ResponseEntity<Restaurant>(restaurantRepository.save(rs), HttpStatus.OK);
+      @RequestBody Restaurant restaurant) {
+    Optional<Restaurant> data = restaurantRepository.findById(id);
+    if (data.isPresent()) {
+      Restaurant rest = data.get();
+      rest.setRestaurantName(restaurant.getRestaurantName());
+      rest.setAddress(restaurant.getAddress());
+      rest.setPhoneNo(restaurant.getPhoneNo());
+      rest.setOpenTime(restaurant.getOpenTime());
+      rest.setCloseTime(restaurant.getCloseTime());
+      rest.setStatus(restaurant.getStatus());
+      rest.setUpdatedTime(updatedTime);
+      return new ResponseEntity<Restaurant>(restaurantRepository.save(rest), HttpStatus.OK);
     } else {
       return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
   }
 
-  public Restaurant changeStatus(@PathVariable int id, @PathVariable Restaurant resm) {
-    System.out.println(resm);
+  public Restaurant changeStatus(@PathVariable int id, @PathVariable Restaurant restaurant) {
+    System.out.println(restaurant);
     String st = "closed";
     String st1 = "open";
 
-    Optional<Restaurant> restdata = restaurantRepository.findById(id);
+    Optional<Restaurant> data = restaurantRepository.findById(id);
 
-    Restaurant rm = restdata.get();
+    Restaurant rest = data.get();
 
-    if (restdata.isPresent()) {
+    if (data.isPresent()) {
 
-      if (resm.getStatus().equals("open")) {
-        rm.setStatus(st);
+      if (restaurant.getStatus().equals("open")) {
+        rest.setStatus(st);
 
       } else {
-        rm.setStatus(st1);
+        rest.setStatus(st1);
 
       }
     }
 
-    return restaurantRepository.save(rm);
+    return restaurantRepository.save(rest);
   }
 
 }

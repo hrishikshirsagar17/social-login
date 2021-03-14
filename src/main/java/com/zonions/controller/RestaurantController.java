@@ -43,8 +43,8 @@ public class RestaurantController {
   // To add restaurant object
   @PostMapping("/restaurant")
   @PreAuthorize("hasRole('ADMIN')")
-  public ResponseEntity<Restaurant> save(@RequestBody Restaurant rest) {
-    return restaurantService.createRestaurant(rest);
+  public ResponseEntity<Restaurant> save(@RequestBody Restaurant restaurant) {
+    return restaurantService.createRestaurant(restaurant);
   }
 
 
@@ -87,9 +87,9 @@ public class RestaurantController {
   @PutMapping("/restaurant/{id}")
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<Restaurant> updateRestaurant(@PathVariable int id,
-      @RequestBody Restaurant rm) {
+      @RequestBody Restaurant restaurant) {
     System.out.println("Inside update controller");
-    return restaurantService.updateRestaurant(id, rm);
+    return restaurantService.updateRestaurant(id, restaurant);
   }
 
   // To get Image By name and restaurant Id
@@ -112,9 +112,9 @@ public class RestaurantController {
   // To change restaurant status active/deactive
   @PutMapping("/changestatus/{id}")
   @PreAuthorize("hasRole('ADMIN')")
-  public Restaurant statusChange(@PathVariable int id, @RequestBody Restaurant rm) {
+  public Restaurant statusChange(@PathVariable int id, @RequestBody Restaurant restaurant) {
     System.out.println("In change status of put....");
-    return restaurantService.changeStatus(id, rm);
+    return restaurantService.changeStatus(id, restaurant);
   }
 
 }
