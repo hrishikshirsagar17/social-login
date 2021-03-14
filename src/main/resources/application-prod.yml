@@ -45,9 +45,9 @@ management:
     health:
       show-details: always
 
-#spring.profiles.active: dev
+spring.profiles.active: dev
 
 #logging configuration
 logging.file.path : /
-logging.file.name : Logs/log.txt
+logging.file.name : Logs/prod-log.txt
 logging.level.com.zonions: debug

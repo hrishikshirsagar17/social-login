@@ -10,8 +10,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 public class ZonionsApplication {
 
+
   public static void main(String[] args) {
     SpringApplication.run(ZonionsApplication.class, args);
+
   }
 
 }

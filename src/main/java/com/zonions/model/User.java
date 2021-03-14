@@ -2,8 +2,8 @@ package com.zonions.model;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -14,58 +14,54 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * The persistent class for the user database table.
- * 
- */
+
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 public class User implements Serializable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 65981149772133526L;
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "USER_ID")
-	private Long id;
+  private static final long serialVersionUID = 65981149772133526L;
 
-	@Column(name = "PROVIDER_USER_ID")
-	private String providerUserId;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "USER_ID")
+  private Long id;
 
-	private String email;
+  @Column(name = "PROVIDER_USER_ID")
+  private String providerUserId;
 
-	@Column(name = "enabled", columnDefinition = "BIT", length = 1)
-	private boolean enabled;
+  private String email;
 
-	@Column(name = "DISPLAY_NAME")
-	private String displayName;
+  @Column(name = "enabled", columnDefinition = "BIT", length = 1)
+  private boolean enabled;
 
-	@Column(name = "created_date", nullable = false, updatable = false)
-	@Temporal(TemporalType.TIMESTAMP)
-	protected Date createdDate;
+  @Column(name = "DISPLAY_NAME")
+  private String displayName;
 
-	@Temporal(TemporalType.TIMESTAMP)
-	protected Date modifiedDate;
+  @Column(name = "created_date", nullable = false, updatable = false)
+  @Temporal(TemporalType.TIMESTAMP)
+  protected Date createdDate;
 
-	private String password;
+  @Temporal(TemporalType.TIMESTAMP)
+  protected Date modifiedDate;
 
-	private String provider;
+  private String password;
 
-	// bi-directional many-to-many association to Role
-	@JsonIgnore
-	@ManyToMany
-	@JoinTable(name = "user_role", joinColumns = { @JoinColumn(name = "USER_ID") }, inverseJoinColumns = { @JoinColumn(name = "ROLE_ID") })
-	private Set<Role> roles;
+  private String provider;
+
+  @ManyToMany
+  @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"),
+      inverseJoinColumns = @JoinColumn(name = "role_id"))
+  @Fetch(FetchMode.JOIN)
+  private Set<Role> roles = new HashSet<>();
 }
